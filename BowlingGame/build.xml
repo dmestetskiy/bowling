@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Bowling Game" default="build" basedir=".">
+	<description>
+		Build-file for bowling project
+	</description>
+	
+	<property name="src" location="src/main/java"/>
+	<property name="testSrc" location="src/test/java"/>
+	<property name="dist" location="dist"/>
+	<property name="test" location="test"/>
+	<property name="build" location="${dist}/build"/>
+	<property name="testClasses" location="${test}/build"/>
+	<property name="junit.dir" location = "${ant.home}/junit"/>
+	<property name="reports" location = "${test}/reports"/>
+	<property name="coverage" location="${reports}/coverage"/>
+	<property name="instr" location="${test}/instr" />
+	<property name="TALK" value="true" />
+	
+	
+	<target name="init">
+		<mkdir dir="${dist}"/>
+		<mkdir dir="${build}"/>
+	</target>
+	
+	<target name="initTest">
+		<mkdir dir="${test}"/>
+		<mkdir dir="${testClasses}"/>
+		<mkdir dir="${reports}"/>
+	</target>
+	
+	<target name="compile" depends="init" description="Compiling">
+		<javac srcdir="${src}" destdir="${build}" includeantruntime="false"/>
+	</target>
+	
+	
+	<target name="build" depends="clean,compress" description = "Build the project">
+		<echo>
+			Building project bowling.jar file
+		</echo>	
+	</target>
+	
+	<target name="run" depends="build">
+        <java jar="${dist}/bowling.jar" fork="true"/>
+    </target>
+	
+	
+	
+	<target name="compress" depends="compile" description="Compressing">
+		<jar destfile="${dist}/bowling.jar" basedir="${build}" 
+		level ="9" includes="**/*.class">
+			<manifest>
+				<attribute name="Main-Class" value="bowling.dialog.DialogPanel"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="clean" description="clean up">
+		<delete dir="${dist}"/>
+	</target>
+	
+	<target name="cleanTest" description="clean up">
+		<delete dir="${test}"/>
+	</target>
+	
+	<path id="classpath.test">
+		<pathelement location="${build}" />
+		<pathelement location="${ant.home}/lib/junit-4.8.1.jar" />
+	    <pathelement location="${testClasses}" />
+	  </path>
+	  
+	  <target name="compile-test">
+	    <javac srcdir="${testSrc}" verbose="${TALK}" destdir="${testClasses}">
+	      <classpath refid="classpath.test"/>
+	    </javac>
+	  </target>
+	  
+	
+	<target name="runTest" depends="cleanTest,clean,initTest,compile,compile-test" description="run tests">
+		<junit fork="true"
+        forkmode="once"
+        haltonfailure="false"
+        haltonerror="false"
+        failureproperty="tests.failures"
+        errorproperty="tests.errors"
+        includeantruntime="true"
+        showoutput="true"
+        printsummary="true">
+        <formatter type="xml"/>
+        <classpath refid="classpath.test"/>
+        <batchtest fork="yes" todir="${reports}">
+                <fileset dir="${testSrc}">
+                        <include name="**/*Test*.java"/>
+                </fileset>
+        </batchtest>
+</junit>
+		
+	</target>
+	
+ <target name="test" depends = "runTest" description="Generate test reports">  
+           <junitreport tofile="TESTS-TestSuites.xml" todir="${reports}">  
+                <fileset dir="${reports}">  
+                    <include name="TEST-*.xml"/>  
+                </fileset>  
+                <report format="frames" todir="${reports}/html"/>  
+            </junitreport>  
+    </target>    
+	
+</project>
