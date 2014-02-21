@@ -14,3 +14,5 @@ sample input:
 after a number. This will calculate the total for the full game. You must enter the full ten rolls, 
 unless you get a strike on the last one, you can roll
 two more
+
+dialogpanel is the main class
